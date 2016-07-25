@@ -1,0 +1,35 @@
+-
+  vars_prompt:
+    - name: "stack_id"
+      prompt: "Please enter stack_id (a/b)"
+      when: stack_id == null
+    - name: "elb"
+      prompt: "Please enter elb (kubernetes-frontend-mdev-live/kubernetes-frontend-mdev-prelive)"
+      when: elb == null
+
+  vars:
+    stack_nodes: 'tag_Stack_{{ stack_id }}'
+
+    is_a: "'$stack_id' == 'a'"
+    is_b: "'$stack_id' == 'b'"
+
+  gather_facts: no
+
+  hosts: tag_Role_k8_loadbalancer, $stack_nodes
+
+  tasks:
+    - debug: var=instances
+    - debug: var=stack_nodes
+    - name: gather instance_ids
+      shell: curl http://169.254.169.254/latest/meta-data/instance-id
+      register: instances
+
+    - debug: var=instances
+
+    - name: remove instances from LB
+      local_action: ec2_elb
+        region="{{ region }}"
+        instance_id="{{ item }}"
+        ec2_elbs="{{ elb | default('kubernetes-frontend-mdev-prelive') }}"
+        state=absent
+      with_items: instances.stdout
