@@ -1,0 +1,42 @@
+##
+## ansible-playbook -i inventory/ elb-register.yaml --limit eu-west-1 --limit tag_Environment_mdev -e region=eu-west-1 -e bitesize_environment=mdev -e stack_id=a -e elb=prelive
+##
+-
+  vars_prompt:
+    - name: "bitesize_environment"
+      prompt: "Please enter bitesize_environment"
+      when: bitesize_environment == null
+    - name: "stack_id"
+      prompt: "Please enter stack_id (a/b)"
+      when: stack_id == null
+    - name: "elb"
+      prompt: "Please enter elb (prelive/live)"
+      when: elb == null
+    - name: "state"
+      prompt: "Please enter action (present/absent)"
+      when: state == null
+
+  vars:
+    stack_nodes: 'tag_Stack_{{ stack_id }}'
+    environment_nodes: 'tag_Environment_{{ bitesize_environment}}'
+    elb_name: 'frontend-{{ bitesize_environment }}-{{ elb }}'
+
+    is_a: "'$stack_id' == 'a'"
+    is_b: "'$stack_id' == 'b'"
+
+  gather_facts: no
+
+  hosts: tag_Role_k8_loadbalancer,'tag_Environment_{{ bitesize_environment}}','tag_Stack_{{ stack_id }}'
+
+  tasks:
+    - name: Gather instance_ids
+      shell: curl http://169.254.169.254/latest/meta-data/instance-id
+      register: instances
+
+    - name: Perform action
+      local_action: ec2_elb
+        region="{{ region }}"
+        instance_id="{{ item }}"
+        ec2_elbs="{{ elb_name }}"
+        state="{{ state }}"
+      with_items: "{{ instances.stdout }}"
