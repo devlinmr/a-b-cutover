@@ -57,7 +57,7 @@ ansible-playbook -i inventory/ elb-register.yaml --limit=${REGION} --limit="tag_
 
 [ ! $? -eq 0 ] && echo "Error: Adding stack ${STACK_ID} to live elb for ${ENVIRONMENT}: $rc." && exit 1
 
-ansible-playbook -i inventory/ elb-register.yaml --limit=${REGION} --limit="tag_Environment_${ENVIRONMENT}:&tag_Role_k8_loadbalancer" -e region=${REGION} -e bitesize_environment=${ENVIRONMENT} -e stack_id=${OTHER_STACK_ID} -e elb=live -e state=present
+ansible-playbook -i inventory/ elb-register.yaml --limit=${REGION} --limit="tag_Environment_${ENVIRONMENT}:&tag_Role_k8_loadbalancer" -e region=${REGION} -e bitesize_environment=${ENVIRONMENT} -e stack_id=${OTHER_STACK_ID} -e elb=live -e state=absent
 
 [ ! $? -eq 0 ] && echo "Error: Removing stack ${OTHER_STACK_ID} from live elb for ${ENVIRONMENT}: $rc." && exit 1
 

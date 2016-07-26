@@ -21,9 +21,6 @@
     environment_nodes: 'tag_Environment_{{ bitesize_environment}}'
     elb_name: 'frontend-{{ bitesize_environment }}-{{ elb }}'
 
-    is_a: "'$stack_id' == 'a'"
-    is_b: "'$stack_id' == 'b'"
-
   gather_facts: no
 
   hosts: tag_Role_k8_loadbalancer,'tag_Environment_{{ bitesize_environment}}','tag_Stack_{{ stack_id }}'
