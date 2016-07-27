@@ -53,15 +53,15 @@ if echo "${ENVIRONMENT}" | grep -qi "prod"; then
   esac
 fi
 
-ansible-playbook -i inventory/ elb-register.yaml --limit=${REGION} --limit="tag_Environment_${ENVIRONMENT}:&tag_Role_k8_loadbalancer" -e region=${REGION} -e bitesize_environment=${ENVIRONMENT} -e stack_id=${STACK_ID} -e elb=live -e state=present
+ansible-playbook -i inventory/ elb-register.yaml --limit=${REGION} --limit="tag_Environment_${ENVIRONMENT}:&tag_Role_k8_loadbalancer:&tag_Stack_${STACK_ID}" -e region=${REGION} -e bitesize_environment=${ENVIRONMENT} -e stack_id=${STACK_ID} -e elb=live -e state=present
 
 [ ! $? -eq 0 ] && echo "Error: Adding stack ${STACK_ID} to live elb for ${ENVIRONMENT}: $rc." && exit 1
 
-ansible-playbook -i inventory/ elb-register.yaml --limit=${REGION} --limit="tag_Environment_${ENVIRONMENT}:&tag_Role_k8_loadbalancer" -e region=${REGION} -e bitesize_environment=${ENVIRONMENT} -e stack_id=${OTHER_STACK_ID} -e elb=live -e state=absent
+ansible-playbook -i inventory/ elb-register.yaml --limit=${REGION} --limit="tag_Environment_${ENVIRONMENT}:&tag_Role_k8_loadbalancer:&tag_Stack_${OTHER_STACK_ID}" -e region=${REGION} -e bitesize_environment=${ENVIRONMENT} -e stack_id=${OTHER_STACK_ID} -e elb=live -e state=absent
 
 [ ! $? -eq 0 ] && echo "Error: Removing stack ${OTHER_STACK_ID} from live elb for ${ENVIRONMENT}: $rc." && exit 1
 
-ansible-playbook -i inventory/ elb-register.yaml --limit=${REGION} --limit="tag_Environment_${ENVIRONMENT}:&tag_Role_k8_loadbalancer" -e region=${REGION} -e bitesize_environment=${ENVIRONMENT} -e stack_id=${STACK_ID} -e elb=prelive -e state=absent
+ansible-playbook -i inventory/ elb-register.yaml --limit=${REGION} --limit="tag_Environment_${ENVIRONMENT}:&tag_Role_k8_loadbalancer:&tag_Stack_${STACK_ID}" -e region=${REGION} -e bitesize_environment=${ENVIRONMENT} -e stack_id=${STACK_ID} -e elb=prelive -e state=absent
 
 [ ! $? -eq 0 ] && echo "Error: emoving stack ${STACK_ID} from prelive elb for ${ENVIRONMENT}: $rc." && exit 1
 
